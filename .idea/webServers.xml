@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="41457a8f-2bac-4fcc-8e9b-a2bf552f8b09" name="huawei_person">
+        <fileTransfer rootFolder="/home/server/go/go_debug" accessType="SFTP" host="120.46.48.197" port="22" sshConfigId="71165656-1658-45bd-8514-c2328e2b5839" sshConfig="root@120.46.48.197:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

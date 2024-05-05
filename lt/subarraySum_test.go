@@ -1,0 +1,27 @@
+package lt
+
+import (
+	"fmt"
+	"testing"
+)
+
+func Test_subarraySum(t *testing.T) {
+	nums := []int{1, 1, 1, 3, 4, 5, 8}
+	k := 4
+	a := subarraySum(nums, k)
+	fmt.Println("a", a)
+}
+
+func subarraySum(nums []int, k int) int {
+	count, pre := 0, 0
+	m := map[int]int{}
+	m[0] = 1
+	for i := 0; i < len(nums); i++ {
+		pre += nums[i]
+		if _, ok := m[pre-k]; ok {
+			count += m[pre-k]
+		}
+		m[pre] += 1
+	}
+	return count
+}
