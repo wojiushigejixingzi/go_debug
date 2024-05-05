@@ -208,6 +208,90 @@ type ListNode struct {
 	Next *ListNode
 }
 
+/*
+ * 链表
+ */
+
+//回文链表
+func isPalindrome(head *ListNode) bool {
+	if head == nil {
+		return true
+	}
+	fast, slow := head, head
+	for fast != nil && fast.Next != nil {
+		fast = fast.Next.Next
+		slow = slow.Next
+	}
+	//反转slow
+	slow = reverseList(slow)
+	for slow != nil {
+		if slow.Val != head.Val {
+			return false
+		}
+		slow = slow.Next
+		head = head.Next
+	}
+	return true
+}
+
+//反转链表
+func reverseList(head *ListNode) *ListNode {
+	curr := head
+	var prev *ListNode
+	for curr != nil {
+		temp := curr.Next
+		curr.Next = prev
+		prev = curr
+		curr = temp
+	}
+	return prev
+}
+
+//环形链表
+func hasCycle(head *ListNode) bool {
+	fast, slow := head, head
+	for fast != nil && fast.Next != nil {
+		fast = fast.Next.Next
+		slow = slow.Next
+		if fast == slow {
+			return true
+		}
+	}
+	return false
+}
+
+//环形链表2-使用map判定
+func detectCycle(head *ListNode) *ListNode {
+	mp := map[*ListNode]bool{}
+	p := head
+	for p != nil {
+		if _, ok := mp[p]; ok {
+			return p
+		}
+		mp[p] = true
+		p = p.Next
+	}
+	return nil
+}
+
+//环形链表2-快慢指针
+func detectCycleFastAndSlow(head *ListNode) *ListNode {
+	fast, slow := head, head
+	for fast != nil && fast.Next != nil {
+		fast = fast.Next.Next
+		slow = slow.Next
+		if fast == slow {
+			p := head
+			if p != slow {
+				p = p.Next
+				slow = slow.Next
+			}
+			return p
+		}
+	}
+	return nil
+}
+
 //相交链表
 func getIntersectionNode(heaA, headB *ListNode) *ListNode {
 	if heaA == nil || headB == nil {
