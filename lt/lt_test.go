@@ -351,3 +351,45 @@ func mergeTwoLists1(list1, list2 *ListNode) *ListNode {
 	}
 	return prehead.Next
 }
+
+//两数相加
+func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
+	head := &ListNode{}
+	cur := head
+	curry := 0
+	for l1 != nil || l2 != nil || curry != 0 {
+		sum := 0
+		sum += curry
+		if l1 != nil {
+			sum += l1.Val
+			l1 = l1.Next
+		}
+		if l2 != nil {
+			sum += l2.Val
+			l2 = l2.Next
+		}
+		cur.Next = &ListNode{sum % 10, nil}
+		cur = cur.Next
+		curry = sum / 10
+	}
+	return head.Next
+}
+
+//删除链表倒数第n个节点
+func removeNthFromEnd(head *ListNode, n int) *ListNode {
+	dummy := &ListNode{0, head}
+	first := head
+	length := 0
+	for first != nil {
+		length++
+		first = first.Next
+	}
+	length -= n
+	first = dummy
+	for length > 0 {
+		length--
+		first = first.Next
+	}
+	first.Next = first.Next.Next
+	return dummy.Next
+}
