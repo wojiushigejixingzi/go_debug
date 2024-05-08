@@ -90,3 +90,13 @@ func Reverse0(s [5]int) {
 func Assign1(s []int) {
 	s = []int{6, 6, 6}
 }
+
+func hello(num ...int) {
+	num[0] = 18
+}
+
+func Test_slice_20240508(t *testing.T) {
+	i := []int{5, 6, 7}
+	hello(i...)
+	fmt.Println(i[0])
+}

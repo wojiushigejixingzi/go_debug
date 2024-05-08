@@ -393,3 +393,49 @@ func removeNthFromEnd(head *ListNode, n int) *ListNode {
 	first.Next = first.Next.Next
 	return dummy.Next
 }
+
+/**
+ * 两两交换链表中的节点
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+func swapPairs(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+	rest := head.Next.Next
+	newHead := head.Next
+	newHead.Next = head
+	head.Next = swapPairs(rest)
+	return newHead
+}
+
+//Definition for a Node.
+type Node struct {
+	Val    int
+	Next   *Node
+	Random *Node
+}
+
+//随机链表的复制
+func copyRandomList(head *Node) *Node {
+	if head == nil {
+		return nil
+	}
+	mp := map[*Node]*Node{}
+	cur := head
+	for cur != nil {
+		mp[cur] = &Node{cur.Val, nil, nil}
+		cur = cur.Next
+	}
+	cur = head
+	for cur != nil {
+		mp[cur].Next = mp[cur.Next]
+		mp[cur].Random = mp[cur.Random]
+		cur = cur.Next
+	}
+	return mp[head]
+}
