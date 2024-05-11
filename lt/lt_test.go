@@ -439,3 +439,89 @@ func copyRandomList(head *Node) *Node {
 	}
 	return mp[head]
 }
+
+//148. 排序链表
+/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+
+func Test_sort_list(t *testing.T) {
+	head := &ListNode{4, &ListNode{2, &ListNode{1, &ListNode{3, nil}}}}
+	res := sortList(head)
+	for res != nil {
+		a := res.Val
+		t.Log(a)
+		res = res.Next
+
+	}
+
+}
+func sortList(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+	////找到链表的中间节点并断开，形成左右链表，并递归下探
+	//midNode := &ListNode{}
+	//midNode = findMiddleNode(head)
+	//s := midNode.Next
+	//midNode.Next = nil
+
+	//找链表的中间节点
+	var f, s = head, head
+	var ps *ListNode
+	for f != nil && f.Next != nil {
+		f = f.Next.Next
+		ps = s
+		s = s.Next
+	}
+	// 拆分为两个链表（利用 ps，与题目《206. 反转链表》有异曲同工之处）
+	ps.Next = nil
+
+	leftNode := sortList(head)
+	rightNode := sortList(s)
+	//return 合并两个有序链表
+	return mergeTwoSortList(leftNode, rightNode)
+}
+
+//寻找中间节点
+func findMiddleNode(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+	slow := head
+	fast := head
+	var ps *ListNode
+	for fast != nil && fast.Next != nil {
+		fast = fast.Next.Next
+		ps = slow
+		slow = slow.Next
+	}
+	ps.Next = nil
+	return slow
+}
+
+//合并两个有序链表
+func mergeTwoSortList(list1, list2 *ListNode) *ListNode {
+	dummy := &ListNode{}
+	curr := dummy
+	for list1 != nil && list2 != nil {
+		if list1.Val < list2.Val {
+			curr.Next = list1
+			list1 = list1.Next
+		} else {
+			curr.Next = list2
+			list2 = list2.Next
+		}
+		curr = curr.Next
+	}
+	if list1 != nil {
+		curr.Next = list1
+	} else {
+		curr.Next = list2
+	}
+	return dummy.Next
+}
