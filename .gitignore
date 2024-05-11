@@ -14,4 +14,4 @@ go.sum
 *.test
 *.out
 .DS_Store
-.pb
+*.pb
