@@ -1,6 +1,7 @@
 package lt
 
 import (
+	"fmt"
 	"sort"
 	"testing"
 )
@@ -524,4 +525,56 @@ func mergeTwoSortList(list1, list2 *ListNode) *ListNode {
 		curr.Next = list2
 	}
 	return dummy.Next
+}
+
+func Test_climbStairs(t *testing.T) {
+	c := climbStairs(3)
+	fmt.Println(c)
+}
+
+func climbStairs(n int) int {
+	mp := map[int]int{}
+	mp[1] = 1
+	mp[2] = 2
+	for i := 3; i <= n; i++ {
+		mp[i] = mp[i-1] + mp[i-2]
+	}
+	return mp[n]
+}
+
+func Test_generate(t *testing.T) {
+	a := generate(5)
+	fmt.Println(a)
+}
+
+func generate(numRows int) [][]int {
+	num := make([][]int, numRows)
+	for i := range num {
+		num[i] = make([]int, i+1)
+		num[i][0] = 1
+		num[i][i] = 1
+		for j := 1; j < i; j++ {
+			num[i][j] = num[i-1][j] + num[i-1][j-1]
+		}
+	}
+	return num
+}
+
+func Test_fib(t *testing.T) {
+	f := fib(2)
+	fmt.Println(f)
+
+}
+
+func fib(n int) int {
+	if n < 2 {
+		return n
+	}
+	dp := map[int]int{}
+	dp[0] = 0
+	dp[1] = 1
+	for i := 2; i <= n; i++ {
+		dp[i] = dp[i-1] + dp[i-2]
+	}
+	return dp[n]
 }

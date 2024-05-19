@@ -133,3 +133,18 @@ func searchByGoogle(s string) string {
 }
 
 //素数筛 todo
+
+func Test_foreach(t *testing.T) {
+	total, sum := 0, 0
+	var wg sync.WaitGroup
+	for i := 1; i <= 10; i++ {
+		wg.Add(1)
+		sum += i
+		go func(i int) {
+			total += i
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
+	fmt.Printf("total:%d sum %d", total, sum)
+}
