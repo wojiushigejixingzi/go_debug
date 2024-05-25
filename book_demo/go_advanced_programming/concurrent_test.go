@@ -148,3 +148,34 @@ func Test_foreach(t *testing.T) {
 	wg.Wait()
 	fmt.Printf("total:%d sum %d", total, sum)
 }
+
+type People struct{}
+
+func (p *People) ShowA() {
+	fmt.Println("showA")
+	p.ShowB()
+}
+func (p *People) ShowB() {
+	fmt.Println("showB")
+}
+
+type Teacher struct {
+	People
+}
+
+func (t *Teacher) ShowB() {
+	fmt.Println("teacher showB")
+}
+
+func teach() {
+	t := Teacher{}
+	t.ShowB()
+}
+func Test_t(t *testing.T) {
+	var a []int
+	for i := 0; i < 1024; i++ {
+		a = append(a, i)
+		fmt.Println(i, cap(a))
+	}
+	fmt.Printf("%v", a)
+}

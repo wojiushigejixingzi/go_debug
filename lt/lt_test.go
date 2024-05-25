@@ -578,3 +578,47 @@ func fib(n int) int {
 	}
 	return dp[n]
 }
+
+func word_slice(s string, wordDict []string) bool {
+	wordDictSet := map[string]bool{}
+	for _, w := range wordDict {
+		wordDictSet[w] = true
+	}
+	dp := make([]bool, len(s)+1)
+	dp[0] = true
+	for i := 1; i <= len(s); i++ {
+		for j := 0; j < i; j++ {
+			if dp[j] && wordDictSet[s[j:i]] {
+				dp[j] = true
+				break
+			}
+		}
+	}
+	return dp[len(s)]
+}
+
+func TestSums(t *testing.T) {
+	nums := []int{1, 5, 11, 5}
+	res := canPartition(nums)
+	fmt.Println(res)
+}
+
+func canPartition(nums []int) bool {
+	sum := 0
+	for _, num := range nums {
+		sum += num
+	}
+	if sum%2 != 0 {
+		return false
+	}
+	target := sum / 2
+	dp := make([]bool, target+1)
+	dp[0] = true
+	for _, num := range nums {
+		for j := target; j >= num; j-- {
+			dp[j] = dp[j] || dp[j-num]
+			fmt.Println(dp, j, num, dp[j], dp[j-num])
+		}
+	}
+	return dp[target]
+}
