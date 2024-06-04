@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-//字母异位
-//输入: strs = ["eat", "tea", "tan", "ate", "nat", "bat"]
-//输出: [["bat"],["nat","tan"],["ate","eat","tea"]]
+// 字母异位
+// 输入: strs = ["eat", "tea", "tan", "ate", "nat", "bat"]
+// 输出: [["bat"],["nat","tan"],["ate","eat","tea"]]
 func Test_main(t *testing.T) {
 	lengthOfLongestSubstring("abcabcbb")
 }
@@ -58,7 +58,7 @@ func max(i, j int) int {
 	return j
 }
 
-//移动零
+// 移动零
 func moveZeroes(nums []int) {
 	slow := 0
 	for fast := 0; fast < len(nums); fast++ {
@@ -69,7 +69,7 @@ func moveZeroes(nums []int) {
 	}
 }
 
-//盛最多水的容器
+// 盛最多水的容器
 func maxArea(height []int) int {
 	maxArea := 0
 	left := 0
@@ -90,7 +90,7 @@ func min(i, j int) int {
 	return i
 }
 
-//三数之和
+// 三数之和
 func threeSum(nums []int) [][]int {
 	var res [][]int
 	length := len(nums)
@@ -129,7 +129,7 @@ func threeSum(nums []int) [][]int {
 	return res
 }
 
-//无重复字符的最长子串
+// 无重复字符的最长子串
 func lengthOfLongestSubstring(s string) int {
 	//if len(s) == 0 {
 	//	return 0
@@ -166,7 +166,7 @@ func lengthOfLongestSubstring(s string) int {
 	return res
 }
 
-//找到字符串中所有字母异位词
+// 找到字符串中所有字母异位词
 func findAnagrams(s, t string) []int {
 	need := map[byte]int{}
 	window := map[byte]int{}
@@ -213,7 +213,7 @@ type ListNode struct {
  * 链表
  */
 
-//回文链表
+// 回文链表
 func isPalindrome(head *ListNode) bool {
 	if head == nil {
 		return true
@@ -235,7 +235,7 @@ func isPalindrome(head *ListNode) bool {
 	return true
 }
 
-//反转链表
+// 反转链表
 func reverseList(head *ListNode) *ListNode {
 	curr := head
 	var prev *ListNode
@@ -248,7 +248,7 @@ func reverseList(head *ListNode) *ListNode {
 	return prev
 }
 
-//环形链表
+// 环形链表
 func hasCycle(head *ListNode) bool {
 	fast, slow := head, head
 	for fast != nil && fast.Next != nil {
@@ -261,7 +261,7 @@ func hasCycle(head *ListNode) bool {
 	return false
 }
 
-//环形链表2-使用map判定
+// 环形链表2-使用map判定
 func detectCycle(head *ListNode) *ListNode {
 	mp := map[*ListNode]bool{}
 	p := head
@@ -275,7 +275,7 @@ func detectCycle(head *ListNode) *ListNode {
 	return nil
 }
 
-//环形链表2-快慢指针
+// 环形链表2-快慢指针
 func detectCycleFastAndSlow(head *ListNode) *ListNode {
 	fast, slow := head, head
 	for fast != nil && fast.Next != nil {
@@ -293,7 +293,7 @@ func detectCycleFastAndSlow(head *ListNode) *ListNode {
 	return nil
 }
 
-//相交链表
+// 相交链表
 func getIntersectionNode(heaA, headB *ListNode) *ListNode {
 	if heaA == nil || headB == nil {
 		return nil
@@ -314,7 +314,7 @@ func getIntersectionNode(heaA, headB *ListNode) *ListNode {
 	return pa
 }
 
-//合并两个有序链表---递归
+// 合并两个有序链表---递归
 func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
 	if list2 == nil {
 		return list1
@@ -331,7 +331,7 @@ func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
 	}
 }
 
-//合并领个有序链表---迭代
+// 合并领个有序链表---迭代
 func mergeTwoLists1(list1, list2 *ListNode) *ListNode {
 	prehead := &ListNode{}
 	result := prehead
@@ -353,7 +353,7 @@ func mergeTwoLists1(list1, list2 *ListNode) *ListNode {
 	return prehead.Next
 }
 
-//两数相加
+// 两数相加
 func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 	head := &ListNode{}
 	cur := head
@@ -376,7 +376,7 @@ func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 	return head.Next
 }
 
-//删除链表倒数第n个节点
+// 删除链表倒数第n个节点
 func removeNthFromEnd(head *ListNode, n int) *ListNode {
 	dummy := &ListNode{0, head}
 	first := head
@@ -414,14 +414,14 @@ func swapPairs(head *ListNode) *ListNode {
 	return newHead
 }
 
-//Definition for a Node.
+// Definition for a Node.
 type Node struct {
 	Val    int
 	Next   *Node
 	Random *Node
 }
 
-//随机链表的复制
+// 随机链表的复制
 func copyRandomList(head *Node) *Node {
 	if head == nil {
 		return nil
@@ -488,7 +488,7 @@ func sortList(head *ListNode) *ListNode {
 	return mergeTwoSortList(leftNode, rightNode)
 }
 
-//寻找中间节点
+// 寻找中间节点
 func findMiddleNode(head *ListNode) *ListNode {
 	if head == nil || head.Next == nil {
 		return head
@@ -505,7 +505,7 @@ func findMiddleNode(head *ListNode) *ListNode {
 	return slow
 }
 
-//合并两个有序链表
+// 合并两个有序链表
 func mergeTwoSortList(list1, list2 *ListNode) *ListNode {
 	dummy := &ListNode{}
 	curr := dummy
@@ -621,4 +621,47 @@ func canPartition(nums []int) bool {
 		}
 	}
 	return dp[target]
+}
+
+type TreeNode struct {
+	Val   int
+	Left  *TreeNode
+	Right *TreeNode
+}
+
+func Test_inorder(t *testing.T) {
+	node := TreeNode{Val: 1}
+
+	node.Left = &TreeNode{Val: 2}
+	node.Right = &TreeNode{Val: 3}
+
+	res := inorderTraversalV1(&node)
+	fmt.Println(res)
+}
+func inorderTraversal(root *TreeNode) (res []int) {
+	stack := []*TreeNode{}
+	for root != nil || len(stack) > 0 {
+		for root != nil {
+			stack = append(stack, root)
+			root = root.Left
+		}
+		root = stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		res = append(res, root.Val)
+		root = root.Right
+	}
+	return
+}
+func inorderTraversalV1(root *TreeNode) (res []int) {
+	var inoder func(node *TreeNode)
+	inoder = func(node *TreeNode) {
+		if node == nil {
+			return
+		}
+		inoder(node.Left)
+		res = append(res, node.Val)
+		inoder(node.Right)
+	}
+	inoder(root)
+	return res
 }
