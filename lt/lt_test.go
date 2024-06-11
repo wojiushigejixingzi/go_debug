@@ -665,3 +665,19 @@ func inorderTraversalV1(root *TreeNode) (res []int) {
 	inoder(root)
 	return res
 }
+func sortedArrayToBST(nums []int) *TreeNode {
+	Left := 0
+	right := len(nums) - 1
+	var order func(nums []int, Left int, right int) *TreeNode
+	order = func(nums []int, Left int, right int) *TreeNode {
+		if Left > right {
+			return nil
+		}
+		mid := (Left + right) / 2
+		root := &TreeNode{Val: nums[mid]}
+		root.Left = order(nums, Left, mid-1)
+		root.Right = order(nums, mid+1, right)
+		return root
+	}
+	return order(nums, Left, right)
+}
