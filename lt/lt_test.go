@@ -2,6 +2,7 @@ package lt
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"testing"
 )
@@ -680,4 +681,166 @@ func sortedArrayToBST(nums []int) *TreeNode {
 		return root
 	}
 	return order(nums, Left, right)
+}
+
+func flatten(root *TreeNode) (ans []int) {
+	var dfs func(root *TreeNode)
+	dfs = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		ans = append(ans, root.Val)
+		dfs(root.Left)
+		dfs(root.Right)
+	}
+	dfs(root)
+	return ans
+}
+
+func flatten1(root *TreeNode) {
+	for root != nil {
+		if root.Left != nil {
+			root = root.Right
+		} else {
+			pre := root.Left
+			for pre.Right != nil {
+				pre = pre.Right
+			}
+			pre.Right = root.Right
+			root.Right = root.Left
+			root.Left = nil
+			root = root.Right
+		}
+	}
+}
+
+func Test_dominantIndex(t *testing.T) {
+	nums := []int{3, 6, 1, 0}
+	res := dominantIndex(nums)
+	fmt.Println(res)
+
+}
+func dominantIndex(nums []int) int {
+	maxNum := -1
+	maxIndex := 0
+	for i, num := range nums {
+		if num > maxNum {
+			maxNum = num
+			maxIndex = i
+		}
+	}
+	for i, num := range nums {
+		if i != maxIndex && maxNum < 2*num {
+			return -1
+		}
+	}
+	return maxIndex
+
+}
+
+func twoSum(nums []int, target int) []int {
+	mp := map[int]int{}
+	for index, value := range nums {
+		if key, ok := mp[value]; ok {
+			return []int{key, index}
+
+		}
+		mp[target-value] = index
+	}
+	return nil
+}
+func Test_findKthLargest(t *testing.T) {
+	nums := []int{3, 2, 3, 1, 2, 4, 5, 5, 6}
+	a := findKthLargest(nums, 4)
+	fmt.Println(a)
+}
+
+func findKthLargest(nums []int, k int) int {
+	sort.Ints(nums)
+	return nums[len(nums)-2]
+}
+
+func Test_singleNumber(t *testing.T) {
+	nums := []int{4, 1, 2, 1, 2}
+	res := singleNumber(nums)
+	fmt.Println(res)
+}
+func singleNumber(nums []int) int {
+	res := 0
+	for _, num := range nums {
+		res ^= num
+	}
+	return res
+}
+
+func Test_aaa(t *testing.T) {
+	a := 0
+	fmt.Println(a ^ 0)
+}
+
+func majorityElement(nums []int) int {
+	le := len(nums)
+	temp := nums[0]
+	count := 1
+	for i := 1; i < le; i++ {
+		if nums[i] == temp {
+			count++
+		} else {
+			count--
+			if count == 0 {
+				count++
+				temp = nums[i]
+			}
+		}
+	}
+	return temp
+}
+
+func longestConsecutive1(nums []int) int {
+	mp := map[int]bool{}
+	for _, v := range nums {
+		mp[v] = true
+	}
+	longestConsecutive := 1
+	for num := range mp {
+		if !mp[num-1] {
+			current_num := num
+			tempStack := 1
+			for mp[current_num+1] {
+				current_num++
+				tempStack++
+			}
+			longestConsecutive = max(longestConsecutive, tempStack)
+		}
+	}
+	return longestConsecutive
+}
+
+func Test_reverse(t *testing.T) {
+	a := reverse(-123)
+	fmt.Println(a)
+
+}
+func reverse(x int) int {
+	res := 0
+	for x != 0 {
+		if res < math.MinInt32/10 || res > math.MaxInt32/10 {
+			return 0
+		}
+		temp := x % 10
+		x /= 10
+		res = res*10 + temp
+	}
+	return res
+}
+
+func twoSum1(nums []int, target int) []int {
+	mp := map[int]int{}
+	for index, value := range nums {
+		if key, ok := mp[target-value]; ok {
+			return []int{key, index}
+		}
+		mp[index] = value
+	}
+	return nil
 }
