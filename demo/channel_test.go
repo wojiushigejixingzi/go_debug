@@ -17,6 +17,10 @@ func Test_channel(t *testing.T) {
 	go pump(ch) // pump hangs
 	time.Sleep(time.Second * 5)
 	fmt.Println(<-ch)
+	close(ch)
+	fmt.Println("closed")
+	time.Sleep(time.Second * 5)
+	fmt.Println("done")
 }
 
 func pump(ch chan int) {

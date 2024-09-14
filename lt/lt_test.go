@@ -167,7 +167,31 @@ func lengthOfLongestSubstring(s string) int {
 	return res
 }
 
-// 找到字符串中所有字母异位词
+/**
+给定两个字符串 s 和 p，找到 s 中所有 p 的 异位词 的子串，返回这些子串的起始索引。不考虑答案输出的顺序。
+
+异位词 指由相同字母重排列形成的字符串（包括相同的字符串）。
+
+
+
+示例 1:
+
+输入: s = "cbaebabacd", p = "abc"
+输出: [0,6]
+解释:
+起始索引等于 0 的子串是 "cba", 它是 "abc" 的异位词。
+起始索引等于 6 的子串是 "bac", 它是 "abc" 的异位词。
+ 示例 2:
+
+输入: s = "abab", p = "ab"
+���: [0,1,2]
+解释:
+起始索引等于 0 的子串是 "ab", 它是 "ab" 的异位词。
+起始索引等于 1 的子串是 "ba", 它是 "ab" 的异位词。
+起始索引等于 2 的子串是 "ab", 它是 "ab" 的异位词。
+
+*/
+// 找到字符串中所有字母异位词 (TODO)
 func findAnagrams(s, t string) []int {
 	need := map[byte]int{}
 	window := map[byte]int{}
@@ -203,6 +227,31 @@ func findAnagrams(s, t string) []int {
 
 	}
 	return res
+}
+
+func Test_findAna(t *testing.T) {
+	findAnagrams1("cbaebabacd", "abc")
+}
+func findAnagrams1(s string, p string) []int {
+	cnt := [26]int{}
+	for i := range p {
+		cnt[p[i]-'a']++
+	}
+	ans := []int{}
+	l, r := 0, 0
+	cnt2 := [26]int{}
+	for r < len(s) {
+		cnt2[s[r]-'a']++
+		r++
+		if r-l == len(p) {
+			if cnt == cnt2 {
+				ans = append(ans, l)
+			}
+			cnt2[s[l]-'a']--
+			l++
+		}
+	}
+	return ans
 }
 
 type ListNode struct {
@@ -749,6 +798,59 @@ func twoSum(nums []int, target int) []int {
 	}
 	return nil
 }
+
+func Test_generateParenthesis(t *testing.T) {
+	result := generateParenthesis(3)
+	fmt.Println(result)
+}
+
+func generateParenthesis(n int) (res []string) {
+	var order func(left, right int, current string)
+	order = func(left, right int, current string) {
+		if left == 0 && right == 0 {
+			res = append(res, current)
+			return
+		}
+		if left > right {
+			return
+		}
+		if left > 0 {
+			order(left-1, right, current+"(")
+		}
+		if right > 0 {
+			order(left, right-1, current+")")
+		}
+	}
+	order(n, n, "")
+	return res
+}
+
+func Test_generateParenthesis(t *testing.T) {
+	result := generateParenthesis(3)
+	fmt.Println(result)
+}
+
+func generateParenthesis(n int) (res []string) {
+	var order func(left, right int, current string)
+	order = func(left, right int, current string) {
+		if left == 0 && right == 0 {
+			res = append(res, current)
+			return
+		}
+		if left > right {
+			return
+		}
+		if left > 0 {
+			order(left-1, right, current+"(")
+		}
+		if right > 0 {
+			order(left, right-1, current+")")
+		}
+	}
+	order(n, n, "")
+	return res
+}
+
 func Test_findKthLargest(t *testing.T) {
 	nums := []int{3, 2, 3, 1, 2, 4, 5, 5, 6}
 	a := findKthLargest(nums, 4)
@@ -796,6 +898,11 @@ func majorityElement(nums []int) int {
 	return temp
 }
 
+func Test_longestConsecutive(t *testing.T) {
+	nums := []int{100, 4, 200, 1, 3, 2}
+	a := longestConsecutive1(nums)
+	fmt.Println(a)
+}
 func longestConsecutive1(nums []int) int {
 	mp := map[int]bool{}
 	for _, v := range nums {
@@ -843,4 +950,45 @@ func twoSum1(nums []int, target int) []int {
 		mp[index] = value
 	}
 	return nil
+}
+
+func Test_strSort(t *testing.T) {
+
+}
+func str_sort() []int {
+	s := "cbaebabacd"
+	p := "abc"
+	valid := 0
+	left, right := 0, 0
+	res := []int{}
+	window := map[byte]int{}
+	need := map[byte]int{}
+	for i := 0; i < len(p); i++ {
+		need[p[i]]++
+	}
+	for right < len(s) {
+		c := s[right]
+		right++
+		if _, ok := need[c]; ok {
+			window[c]++
+			if window[c] == need[c] {
+				valid++
+			}
+		}
+		if right-left >= len(p) {
+			d := s[left]
+			if valid == len(need) {
+				res = append(res, left)
+			}
+			if _, ok := need[d]; ok {
+				if window[d] == need[d] {
+					valid--
+				}
+				window[d]--
+			}
+			left++
+		}
+
+	}
+	return res
 }
