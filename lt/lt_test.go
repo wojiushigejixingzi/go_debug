@@ -799,12 +799,12 @@ func twoSum(nums []int, target int) []int {
 	return nil
 }
 
-func Test_generateParenthesis(t *testing.T) {
-	result := generateParenthesis(3)
+func Test_generateParenthesis11(t *testing.T) {
+	result := generateParenthesis11(3)
 	fmt.Println(result)
 }
 
-func generateParenthesis(n int) (res []string) {
+func generateParenthesis11(n int) (res []string) {
 	var order func(left, right int, current string)
 	order = func(left, right int, current string) {
 		if left == 0 && right == 0 {
@@ -991,4 +991,184 @@ func str_sort() []int {
 
 	}
 	return res
+}
+
+func Test_isSubsequence(t *testing.T) {
+	s := "abc"
+	a := "ahbgdc"
+	fmt.Println(isSubsequence(s, a))
+}
+
+func isSubsequence(s string, t string) bool {
+	need := map[byte]int{}
+	statc := []byte{}
+	for i := 0; i < len(s); i++ {
+		need[s[i]]++
+		statc = append(statc, s[i])
+	}
+	for right := 0; right < len(t); right++ {
+		if _, ok := need[t[right]]; ok && statc[0] == t[right] {
+			statc = statc[1:]
+		}
+	}
+	if len(statc) != 0 {
+		return false
+	}
+	return true
+
+}
+
+/**
+1679. K 和数对的最大数目
+中等
+相关标签
+相关企业
+提示
+给你一个整数数组 nums 和一个整数 k 。
+
+每一步操作中，你需要从数组中选出和为 k 的两个整数，并将它们移出数组。
+
+返回你可以对数组执行的最大操作数。
+
+
+
+示例 1：
+
+输入：nums = [1,2,3,4], k = 5
+输出：2
+解释：开始时 nums = [1,2,3,4]：
+- 移出 1 和 4 ，之后 nums = [2,3]
+- 移出 2 和 3 ，之后 nums = []
+不再有和为 5 的数对，因此最多执行 2 次操作。
+示例 2：
+
+输入：nums = [3,1,3,4,3], k = 6
+输出：1
+解释：开始时 nums = [3,1,3,4,3]：
+- 移出前两个 3 ，之后nums = [1,4,3]
+不再有和为 6 的数对，因此最多执行 1 次操作。
+*/
+
+func Test_maxOperations(t *testing.T) {
+	maxOperations([]int{1, 2, 3, 4}, 5)
+}
+
+func maxOperations(nums []int, k int) int {
+	mp := map[int]int{}
+	count := 0
+	for _, num := range nums {
+		if _, ok := mp[k-num]; ok && mp[k-num] > 0 {
+			count++
+			mp[k-num]--
+		} else {
+			mp[num]++
+		}
+	}
+	return count
+}
+
+func Test_permute(t *testing.T) {
+	permute([]int{1, 2, 3})
+}
+
+func permute(nums []int) [][]int {
+	n := len(nums)
+	res := [][]int{}
+	path := make([]int, n)
+	on_path := make([]bool, n)
+	var dfs func(int)
+	dfs = func(i int) {
+		if n == i {
+			res = append(res, append([]int(nil), path...))
+			return
+		}
+		for j, on := range on_path {
+			if !on {
+				path[i] = nums[j]
+				on_path[j] = true
+				dfs(i + 1)
+				on_path[j] = false
+			}
+		}
+	}
+	dfs(0)
+	fmt.Println(res)
+	return res
+}
+
+func frequencySort(s string) string {
+	mp := map[byte]int{}
+	for i := 0; i < len(s); i++ {
+		mp[s[i]]++
+	}
+	return ""
+}
+
+func Test_mergeAlternately(t *testing.T) {
+	fmt.Println(mergeAlternately("abc", "defg"))
+}
+
+func mergeAlternately(word1 string, word2 string) string {
+	str := ""
+	word1Len := len(word1)
+	word1Index := 0
+	word2Len := len(word2)
+	word2Index := 0
+	for word1Len > 0 && word2Len > 0 {
+		tempStr := string(word1[word1Index]) + string(word2[word2Index])
+		str += tempStr
+		word1Index++
+		word2Index++
+		word1Len--
+		word2Len--
+
+	}
+	if word1Len > 0 {
+		str += word1[word1Index : word1Len-1]
+	}
+	if word2Len > 0 {
+		str += word2[word2Index:]
+	}
+	return str
+}
+func gcdOfStrings(str1 string, str2 string) string {
+	if str1+str2 != str2+str1 {
+		return ""
+	}
+	i := dfs(len(str1), len(str2))
+	return str1[0:i]
+}
+
+func dfs(a, b int) int {
+	if b == 0 {
+		return a
+	}
+	return dfs(b, a%b)
+}
+
+func Test_sortColors(t *testing.T) {
+	fmt.Println(sortColors([]int{2, 0, 2, 1, 1, 0}))
+}
+
+func sortColors(nums []int) []int {
+	num0, num1, num2 := 0, 0, 0
+	for i := 0; i < len(nums); i++ {
+		if nums[i] == 0 {
+			nums[num2] = 2
+			num2++
+			nums[num1] = 1
+			num1++
+			nums[num0] = 0
+			num0++
+		} else if nums[i] == 1 {
+			nums[num2] = 2
+			num2++
+			nums[num1] = 1
+			num1++
+		} else {
+			nums[num2] = 2
+			num2++
+		}
+	}
+	return nums
 }

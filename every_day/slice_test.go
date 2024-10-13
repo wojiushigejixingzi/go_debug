@@ -2,6 +2,7 @@ package every_day
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -65,4 +66,63 @@ func subarraySum(nums []int, k int) (ans int) {
 		cnt[s]++
 	}
 	return
+}
+func isValid(s string) bool {
+	if len(s)%2 != 0 {
+		return false
+	}
+	var stack []rune
+	for _, i := range s {
+		if i == '(' {
+			stack = append(stack, ')')
+		} else if i == '{' {
+			stack = append(stack, '}')
+		} else if i == '[' {
+			stack = append(stack, ']')
+		} else {
+			if len(stack) == 0 || stack[len(stack)-1] != i {
+				return false
+			}
+			stack = stack[:len(stack)-1]
+		}
+	}
+	return len(stack) == 0
+}
+
+func Test_slice_pop(t *testing.T) {
+	stack := []int{1, 2, 3, 4, 5}
+	s := stack[0:1]
+	fmt.Println(s)
+	stack = stack[len(stack)-1:]
+	fmt.Println(stack)
+}
+func Test_decodeString(t *testing.T) {
+	s := "3[a2[c]]"
+	fmt.Println(decodeString(s))
+}
+func decodeString(s string) string {
+	numStack := []int{}
+	strStack := []string{}
+
+	result := ""
+	num := 0
+	for _, char := range s {
+		if char > '0' && char < '9' {
+			num = num*10 + int(char-'0')
+		} else if char == '[' {
+			numStack = append(numStack, num)
+			strStack = append(strStack, result)
+			num = 0
+			result = ""
+		} else if char == ']' {
+			count := numStack[len(numStack)-1]
+			numStack = numStack[:len(numStack)-1]
+			temp := strStack[len(strStack)-1]
+			strStack = strStack[:len(strStack)-1]
+			result = strings.Repeat(temp, count) + result
+		} else {
+			result += string(char)
+		}
+	}
+	return result
 }
