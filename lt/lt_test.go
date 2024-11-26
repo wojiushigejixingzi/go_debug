@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"sort"
+	"sync"
 	"testing"
 )
 
@@ -1171,4 +1172,494 @@ func sortColors(nums []int) []int {
 		}
 	}
 	return nums
+}
+func Test_sortColors1(t *testing.T) {
+	res := sortColors1([]int{2, 0, 2, 1, 1, 0})
+	fmt.Println(res)
+}
+
+func sortColors1(nums []int) []int {
+	l := len(nums) - 1
+	num0, num1, num2 := l, l, l
+	for i := l; i > 0; i-- {
+		if nums[i] == 2 {
+			nums[num2] = 2
+			num2--
+			nums[num1] = 1
+			num1--
+			nums[num0] = 0
+			num0--
+		} else if nums[i] == 1 {
+			nums[num2] = 2
+			num2--
+			nums[num1] = 1
+			num1--
+		} else {
+			nums[num2] = 2
+			num2--
+		}
+	}
+	return nums
+}
+
+func Test_subarrauSum(t *testing.T) {
+	fmt.Println(subarraySum([]int{1, 1, 1, 1, 1, 1, 1, 1}, 2))
+
+}
+func subarraySum(nums []int, k int) int {
+	ans := 0
+	mp := map[int]int{0: 1}
+	s := 0
+	for _, num := range nums {
+		s += num
+		ans += mp[s-k]
+		mp[s]++
+	}
+	return ans
+}
+
+func Test_maxSubArray(t *testing.T) {
+	//fmt.Println(maxSubArray([]int{-2, 1, -3, 4, -1, 2, 1, -5, 4}))
+	fmt.Println(maxSubArray1([]int{-2, 1, -3, 4, -1, 2, 1, -5, 4}))
+}
+func maxSubArray(nums []int) int {
+	preMax := 0
+	currentMax := nums[0]
+	for _, num := range nums {
+		preMax = max(num, preMax+num)
+		currentMax = max(currentMax, preMax)
+	}
+	return currentMax
+}
+
+func maxSubArray1(nums []int) int {
+	max := nums[0]
+	for i := 1; i < len(nums); i++ {
+		if nums[i]+nums[i-1] > nums[i] {
+			nums[i] += nums[i-1]
+		}
+		if nums[i] > max {
+			max = nums[i]
+		}
+	}
+	fmt.Println("nums", nums, "max:", max)
+	return max
+}
+
+func Test_appendSlice(t *testing.T) {
+	appendSlice()
+}
+func appendSlice() {
+	s := []int{5}
+	s = append(s, 7)
+	s = append(s, 9)
+	x := append(s, 11)
+	y := append(s, 12)
+	fmt.Println(s, len(s), cap(s), x, len(x), cap(x), y, len(y), cap(y))
+	s = append(s, 10)
+	s = append(s, 11)
+	s = append(s, 12)
+	fmt.Println(s, len(s), cap(s), x, len(x), cap(x), y, len(y), cap(y))
+}
+
+func Test_a(t *testing.T) {
+	ww()
+}
+
+var c = make(chan int)
+var a int
+
+func f() {
+	a = 1
+	<-c
+}
+func ww() {
+	go f()
+	c <- 0
+	print(a)
+}
+
+func rotate(nums []int, k int) {
+	if k == 0 {
+		return
+	}
+
+}
+func Test_productExceptSelf(t *testing.T) {
+	//fmt.Println(productExceptSelf([]int{1, 2, 3, 4}))
+	fmt.Println(productExceptSelf1([]int{1, 2, 3, 4}))
+}
+
+func productExceptSelf(nums []int) []int {
+	res := []int{0: 1}
+
+	for i := 1; i < len(nums); i++ {
+		res = append(res, res[i-1]*nums[i-1])
+	}
+	fmt.Println("res", res)
+	right := 1
+	for i := len(nums) - 1; i >= 0; i-- {
+		fmt.Println("res[i]", res[i], "right", right, "i", i)
+		res[i] *= right
+		fmt.Println("res[i]", res[i], "right", right, "nums[i]", nums[i])
+		right = right * nums[i]
+		fmt.Println("right", right, "===========")
+	}
+	return res
+}
+
+func productExceptSelf1(nums []int) []int {
+	length := len(nums)
+	answer := make([]int, length)
+	// answer[i] 表示索引 i 左侧所有元素的乘积
+	// 因为索引为 '0' 的元素左侧没有元素， 所以 answer[0] = 1
+	answer[0] = 1
+	for i := 1; i < length; i++ {
+		answer[i] = nums[i-1] * answer[i-1]
+	}
+
+	// R 为右侧所有元素的乘积
+	// 刚开始右边没有元素，所以 R = 1
+	R := 1
+	for i := length - 1; i >= 0; i-- {
+		// 对于索引 i，左边的乘积为 answer[i]，右边的乘积为 R
+		answer[i] = answer[i] * R
+		// R 需要包含右边所有的乘积，所以计算下一个结果时需要将当前值乘到 R 上
+		R *= nums[i]
+	}
+	return answer
+}
+func Test_merge(t *testing.T) {
+	merge([][]int{{1, 3}, {2, 6}, {8, 10}, {15, 18}})
+}
+
+func merge(intervals [][]int) [][]int {
+	var res [][]int
+	sort.Slice(intervals, func(i, j int) bool {
+		return intervals[i][0] < intervals[j][0]
+	})
+	for i := 0; i < len(intervals); i++ {
+		for j := i + 1; j < len(intervals); j++ {
+			if intervals[i][1] > intervals[j][0] && intervals[i][0] < intervals[j][1] {
+				intervals[j][0] = min(intervals[i][0], intervals[j][0])
+				intervals[j][1] = max(intervals[i][1], intervals[j][1])
+				intervals[i] = []int{}
+			} else {
+				res = append(res, intervals[i])
+			}
+		}
+	}
+	return res
+}
+func Test_searchInsert(t *testing.T) {
+	fmt.Println(searchInsert([]int{1, 3, 5, 6}, 5))
+}
+
+func searchInsert(nums []int, target int) int {
+	lenght := len(nums)
+	for i := 0; i < lenght; i++ {
+		if nums[i] == target {
+			return i
+		}
+		if nums[i] > target {
+			return i - 1
+		}
+	}
+	return lenght
+}
+
+func Test_serchRange(t *testing.T) {
+	fmt.Println(searchRange([]int{5, 7, 7, 8, 8, 10}, 8))
+}
+func searchRange(nums []int, target int) []int {
+	length := len(nums)
+	if length == 0 || (length == 1 && nums[0] != target) {
+		return []int{-1, -1}
+	}
+	l := 0
+	r := length - 1
+	for l < r {
+		min := (l + r) / 2
+		if nums[min] >= target {
+			r = min
+		} else {
+			l = min + 1
+		}
+	}
+	if nums[r] != target {
+		return []int{-1, -1}
+	}
+	for i := r; i < length; i++ {
+		if nums[i] != target {
+			return []int{r, i - 1}
+		}
+	}
+	return []int{r, length - 1}
+}
+func Test_searchIndex(t *testing.T) {
+	fmt.Println(searchIndex([]int{1, 3, 5, 6}, 2))
+}
+
+func searchIndex(nums []int, target int) int {
+	l := 0
+	r := len(nums) - 1
+	for l <= r {
+		midIndex := (l + r) / 2
+		if nums[midIndex] > target {
+			r = midIndex - 1
+		} else if nums[midIndex] < target {
+			l = midIndex + 1
+		} else {
+			return midIndex
+		}
+	}
+	return len(nums)
+}
+
+func Test_findMin(t *testing.T) {
+	findMin([]int{3, 4, 5, 6, 7, 8, 1, 2})
+}
+func findMin(nums []int) int {
+	left, right := 0, len(nums)-1
+	for left <= right {
+		mid := (left + right) / 2
+		if nums[mid] > nums[len(nums)-1] {
+			left = mid + 1
+		} else {
+			right = mid - 1
+		}
+	}
+	return nums[left]
+}
+
+func Test_search(t *testing.T) {
+	fmt.Println(search([]int{4, 5, 6, 7, 0, 1, 2}, 0))
+}
+
+func search(nums []int, target int) int {
+	length := len(nums)
+	left, right := 0, length-1
+	for left <= right {
+		mid := (left + right) / 2
+		if nums[mid] == target {
+			return mid
+		} else if nums[mid] < nums[left] {
+			//右边有序
+			if nums[mid] < target && target <= nums[right] {
+				left = mid + 1
+			} else {
+				right = mid - 1
+			}
+		} else {
+			//左边有序
+			if nums[mid] > target && target >= nums[left] {
+				right = mid - 1
+			} else {
+				left = mid + 1
+			}
+		}
+	}
+	return -1
+}
+
+func findKthLargestHeap(nums []int, k int) int {
+	hp := &Heap{size: k}
+	for _, num := range nums {
+		hp.Add(num)
+	}
+	return hp.arr[0]
+}
+
+type Heap struct {
+	arr  []int
+	size int
+}
+
+func (hp *Heap) Add(num int) {
+	if len(hp.arr) < hp.size {
+		hp.arr = append(hp.arr, num)
+		for i := len(hp.arr) - 1; i > 0; {
+			p := (i - 1) / 2
+			if p >= 0 && hp.arr[p] > hp.arr[i] {
+				hp.Swap(p, i)
+				i = p
+			} else {
+				break
+			}
+		}
+	} else if num > hp.arr[0] {
+		hp.arr[0] = num
+		hp.Down(0)
+	}
+}
+func (hp *Heap) Swap(a, b int) {
+	hp.arr[a], hp.arr[b] = hp.arr[b], hp.arr[a]
+}
+func (hp *Heap) Down(i int) {
+	k := i
+	left, right := 2*i+1, 2*i+2
+	n := len(hp.arr)
+	if left < n && hp.arr[k] > hp.arr[left] {
+		k = left
+	}
+	if right < n && hp.arr[k] > hp.arr[right] {
+		k = right
+	}
+	if i != k {
+		hp.Swap(i, k)
+		hp.Down(k)
+	}
+}
+
+func Test_partitionLabels(t *testing.T) {
+	partitionLabels("ababcbacadefegdehijhklij")
+}
+func partitionLabels(s string) []int {
+	mark := [26]int{}
+	for i, c := range s {
+		mark[c-'a'] = i
+	}
+	start, end := 0, 0
+	res := []int{}
+	for i, c := range s {
+		end = max(end, mark[c-'a'])
+		if i == end {
+			res = append(res, end-start+1)
+			start = i + 1
+		}
+	}
+	return res
+}
+
+var wg sync.WaitGroup
+var name string
+
+func Test_goroutine(t *testing.T) {
+	name = "wangwenbo"
+	wg.Add(1)
+	go func() {
+		fmt.Println("go before", name)
+		defer wg.Done()
+		getName()
+	}()
+	wg.Wait()
+}
+func getName() {
+	fmt.Println("go after", name)
+}
+
+func Test_coinChangeGreedy(t *testing.T) {
+	coinChangeGreedy([]int{186, 419, 83, 408}, 6249)
+}
+func coinChangeGreedy(coins []int, amt int) int {
+	sort.Slice(coins, func(i, j int) bool {
+		return coins[i] < coins[j]
+	})
+	i := len(coins) - 1
+	count := 0
+	for amt > 0 {
+		for i > 0 && coins[i] > amt {
+			i--
+		}
+		amt -= coins[i]
+		count++
+	}
+	if amt != 0 {
+		fmt.Println("无法找零")
+		return 0
+	}
+	return count
+}
+
+func Test_blackTrack(t *testing.T) {
+	nums := []int{1, 2, 3}
+	res := make([][]int, len(nums))
+	state := make([]int, 0)
+	selected := make([]bool, len(nums))
+	blackTrack(&state, &nums, &selected, &res)
+}
+
+func blackTrack(stage *[]int, choices *[]int, selected *[]bool, res *[][]int) {
+	if len(*stage) == len(*choices) {
+		*res = append(*res, append([]int{}, *stage...))
+	}
+	duplicated := make(map[int]bool)
+	for i := 0; i < len(*choices); i++ {
+		choice := (*choices)[i]
+		if _, ok := duplicated[choice]; !ok && !(*selected)[i] {
+			duplicated[choice] = true
+			(*selected)[i] = true
+			*stage = append(*stage, choice)
+			blackTrack(stage, choices, selected, res)
+			(*selected)[i] = false
+			*stage = (*stage)[:len(*stage)-1]
+		}
+	}
+}
+
+// 有重复元素的全排列
+func Test_subsetSumINaive(t *testing.T) {
+	nums := []int{3, 4, 5}
+	target := 8
+	res := make([][]int, 0)
+	stage := make([]int, 0) //子集
+	total := 0
+	subsetSumINaive(total, target, &stage, &nums, &res)
+	fmt.Println("res", res)
+}
+
+func subsetSumINaive(total, target int, stage, choices *[]int, res *[][]int) {
+	//如果子集和等于目标值
+	if total == target {
+		*res = append(*res, append([]int{}, *stage...))
+		return
+	}
+	//遍历所有选择
+	for i := 0; i < len(*choices); i++ {
+		//剪枝，如果超过目标值，则跳过选择
+		if total+(*choices)[i] > target {
+			continue
+		}
+		//尝试做出选择
+		*stage = append(*stage, (*choices)[i])
+		//递归
+		subsetSumINaive(total+(*choices)[i], target, stage, choices, res)
+		*stage = (*stage)[:len(*stage)-1]
+	}
+}
+
+// 无重复元素的全排列
+func Test_subsetSumINaiveNoDuplicate(t *testing.T) {
+	nums := []int{3, 4, 5}
+	//对nums进行排序
+	sort.Ints(nums)
+	//结果
+	res := make([][]int, 0)
+	target := 8
+	//当前状态
+	stage := make([]int, 0)
+	//起始点
+	start := 0
+	subsetSumINaiveNoDuplicate(start, target, &stage, &nums, &res)
+	fmt.Println("res", res)
+}
+
+func subsetSumINaiveNoDuplicate(start, target int, stage, choices *[]int, res *[][]int) {
+	//子集的和目标值相等则记录值
+	if target == 0 {
+		*res = append(*res, append([]int{}, *stage...))
+		return
+	}
+	//如果不想等，则从start开始遍历
+	for i := start; i < len(*choices); i++ {
+		//如果当前元素大于目标值 直接返回
+		if target-(*choices)[i] < 0 {
+			break
+		}
+		//记录选择
+		*stage = append(*stage, (*choices)[i])
+		subsetSumINaiveNoDuplicate(i, target-(*choices)[i], stage, choices, res)
+		//回溯
+		*stage = (*stage)[:len(*stage)-1]
+	}
 }
