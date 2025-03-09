@@ -3,10 +3,12 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	//"go_debug/huajiao"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -14,6 +16,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 )
 
 func debu() {
@@ -173,7 +181,7 @@ type LogNoRecordEntry struct {
 	} `json:"data"`
 }
 
-//从本地读取文件,目录如下：/Users/wwb/Desktop/aom.txt
+// 从本地读取文件,目录如下：/Users/wwb/Desktop/aom.txt
 func readFile() {
 
 	mgIdMapName := make(map[string]string)
@@ -241,7 +249,7 @@ func readFile() {
 
 }
 
-//字母异位词分组
+// 字母异位词分组
 func groupAnagrams(strs []string) [][]string {
 	mp := map[string][]string{}
 	for _, str := range strs {
@@ -259,7 +267,7 @@ func groupAnagrams(strs []string) [][]string {
 	return ans
 }
 
-//快速排序算法
+// 快速排序算法
 func quickSort() []int {
 	arr := []int{1, 2, 3, 4, 5, 6, 7, 8}
 	return arr
@@ -274,4 +282,88 @@ func towSum(nums []int, target int) []int {
 		hash[num] = p
 	}
 	return nil
+}
+
+// 初始化追踪器提供者
+func initTracer() (*sdktrace.TracerProvider, error) {
+	// 创建标准输出导出器
+	exporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
+	if err != nil {
+		return nil, err
+	}
+
+	// 创建资源对象，包含服务信息
+	resource := resource.NewWithAttributes(
+		semconv.SchemaURL,
+		semconv.ServiceName("otel-demo"),
+		semconv.ServiceVersion("1.0.0"),
+	)
+
+	// 创建追踪器提供者
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exporter),
+		sdktrace.WithResource(resource),
+	)
+
+	// 设置全局追踪器提供者
+	otel.SetTracerProvider(tp)
+
+	return tp, nil
+}
+
+// 模拟数据库操作
+func dbOperation(ctx context.Context) error {
+	tracer := otel.Tracer("database-operations")
+
+	ctx, span := tracer.Start(ctx, "database-query")
+	defer span.End()
+
+	// 添加属性
+	span.SetAttributes(attribute.String("database.query", "SELECT * FROM users"))
+
+	// 模拟数据库操作延迟
+	time.Sleep(100 * time.Millisecond)
+
+	return nil
+}
+
+// 模拟业务逻辑
+func processUser(ctx context.Context) error {
+	tracer := otel.Tracer("user-processing")
+
+	ctx, span := tracer.Start(ctx, "process-user")
+	defer span.End()
+
+	// 调用数据库操作
+	if err := dbOperation(ctx); err != nil {
+		return err
+	}
+
+	// 模拟处理时间
+	time.Sleep(200 * time.Millisecond)
+
+	return nil
+}
+
+func main() {
+	// 初始化追踪器
+	tp, err := initTracer()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Printf("Error shutting down tracer provider: %v", err)
+		}
+	}()
+
+	// 创建根上下文
+	ctx := context.Background()
+
+	// 执行业务逻辑
+	if err := processUser(ctx); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("程序执行完成")
 }
