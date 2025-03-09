@@ -39,7 +39,6 @@ var nowFunc = time.Now // for testing
 var ErrPoolExhausted = errors.New("redigo: connection pool exhausted")
 
 var (
-	errPoolClosed = errors.New("redigo: connection pool closed")
 	errConnClosed = errors.New("redigo: connection closed")
 )
 
@@ -254,7 +253,6 @@ func (p *Pool) GetContext(ctx context.Context) (Conn, error) {
 	p.mu.Unlock()
 	c, err := p.dial(ctx)
 	if err != nil {
-		c = nil
 		p.mu.Lock()
 		p.active--
 		if p.ch != nil && !p.closed {
@@ -445,13 +443,22 @@ func initSentinel() {
 		sentinel = p
 	} else {
 		h := sha1.New()
-		io.WriteString(h, "Oops, rand failed. Use time instead.")
-		io.WriteString(h, strconv.FormatInt(time.Now().UnixNano(), 10))
+		io.WriteString(h, "Oops, rand failed. Use time instead.")       // nolint: errcheck
+		io.WriteString(h, strconv.FormatInt(time.Now().UnixNano(), 10)) // nolint: errcheck
 		sentinel = h.Sum(nil)
 	}
 }
 
-func (ac *activeConn) Close() error {
+func (ac *activeConn) firstError(errs ...error) error {
+	for _, err := range errs[:len(errs)-1] {
+		if err != nil {
+			return err
+		}
+	}
+	return errs[len(errs)-1]
+}
+
+func (ac *activeConn) Close() (err error) {
 	pc := ac.pc
 	if pc == nil {
 		return nil
@@ -459,23 +466,28 @@ func (ac *activeConn) Close() error {
 	ac.pc = nil
 
 	if ac.state&connectionMultiState != 0 {
-		pc.c.Send("DISCARD")
+		err = pc.c.Send("DISCARD")
 		ac.state &^= (connectionMultiState | connectionWatchState)
 	} else if ac.state&connectionWatchState != 0 {
-		pc.c.Send("UNWATCH")
+		err = pc.c.Send("UNWATCH")
 		ac.state &^= connectionWatchState
 	}
 	if ac.state&connectionSubscribeState != 0 {
-		pc.c.Send("UNSUBSCRIBE")
-		pc.c.Send("PUNSUBSCRIBE")
+		err = ac.firstError(err,
+			pc.c.Send("UNSUBSCRIBE"),
+			pc.c.Send("PUNSUBSCRIBE"),
+		)
 		// To detect the end of the message stream, ask the server to echo
 		// a sentinel value and read until we see that value.
 		sentinelOnce.Do(initSentinel)
-		pc.c.Send("ECHO", sentinel)
-		pc.c.Flush()
+		err = ac.firstError(err,
+			pc.c.Send("ECHO", sentinel),
+			pc.c.Flush(),
+		)
 		for {
-			p, err := pc.c.Receive()
-			if err != nil {
+			p, err2 := pc.c.Receive()
+			if err2 != nil {
+				err = ac.firstError(err, err2)
 				break
 			}
 			if p, ok := p.([]byte); ok && bytes.Equal(p, sentinel) {
@@ -484,9 +496,12 @@ func (ac *activeConn) Close() error {
 			}
 		}
 	}
-	pc.c.Do("")
-	ac.p.put(pc, ac.state != 0 || pc.c.Err() != nil)
-	return nil
+	_, err2 := pc.c.Do("")
+	return ac.firstError(
+		err,
+		err2,
+		ac.p.put(pc, ac.state != 0 || pc.c.Err() != nil),
+	)
 }
 
 func (ac *activeConn) Err() error {
@@ -495,6 +510,20 @@ func (ac *activeConn) Err() error {
 		return errConnClosed
 	}
 	return pc.c.Err()
+}
+
+func (ac *activeConn) DoContext(ctx context.Context, commandName string, args ...interface{}) (reply interface{}, err error) {
+	pc := ac.pc
+	if pc == nil {
+		return nil, errConnClosed
+	}
+	cwt, ok := pc.c.(ConnWithContext)
+	if !ok {
+		return nil, errContextNotSupported
+	}
+	ci := lookupCommandInfo(commandName)
+	ac.state = (ac.state | ci.Set) &^ ci.Clear
+	return cwt.DoContext(ctx, commandName, args...)
 }
 
 func (ac *activeConn) Do(commandName string, args ...interface{}) (reply interface{}, err error) {
@@ -547,6 +576,18 @@ func (ac *activeConn) Receive() (reply interface{}, err error) {
 	return pc.c.Receive()
 }
 
+func (ac *activeConn) ReceiveContext(ctx context.Context) (reply interface{}, err error) {
+	pc := ac.pc
+	if pc == nil {
+		return nil, errConnClosed
+	}
+	cwt, ok := pc.c.(ConnWithContext)
+	if !ok {
+		return nil, errContextNotSupported
+	}
+	return cwt.ReceiveContext(ctx)
+}
+
 func (ac *activeConn) ReceiveWithTimeout(timeout time.Duration) (reply interface{}, err error) {
 	pc := ac.pc
 	if pc == nil {
@@ -562,6 +603,9 @@ func (ac *activeConn) ReceiveWithTimeout(timeout time.Duration) (reply interface
 type errorConn struct{ err error }
 
 func (ec errorConn) Do(string, ...interface{}) (interface{}, error) { return nil, ec.err }
+func (ec errorConn) DoContext(context.Context, string, ...interface{}) (interface{}, error) {
+	return nil, ec.err
+}
 func (ec errorConn) DoWithTimeout(time.Duration, string, ...interface{}) (interface{}, error) {
 	return nil, ec.err
 }
@@ -570,6 +614,7 @@ func (ec errorConn) Err() error                                            { ret
 func (ec errorConn) Close() error                                          { return nil }
 func (ec errorConn) Flush() error                                          { return ec.err }
 func (ec errorConn) Receive() (interface{}, error)                         { return nil, ec.err }
+func (ec errorConn) ReceiveContext(context.Context) (interface{}, error)   { return nil, ec.err }
 func (ec errorConn) ReceiveWithTimeout(time.Duration) (interface{}, error) { return nil, ec.err }
 
 type idleList struct {
@@ -594,7 +639,6 @@ func (l *idleList) pushFront(pc *poolConn) {
 	}
 	l.front = pc
 	l.count++
-	return
 }
 
 func (l *idleList) popFront() {
