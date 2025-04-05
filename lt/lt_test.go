@@ -2268,88 +2268,89 @@ func maxSatisfied(customers []int, grumpy []int, minutes int) (res int) {
 	return res
 }
 
-type LRUCache struct {
-	size       int
-	capacity   int
-	cache      map[int]*LinkNode
-	head, tail *LinkNode
-}
-
-type LinkNode struct {
-	key, value int
-	pre, next  *LinkNode
-}
-
-func initLinkNode(key, value int) *LinkNode {
-	return &LinkNode{
-		key:   key,
-		value: value,
-	}
-}
-
-func Constructor(capacity int) LRUCache {
-	l := LRUCache{
-		capacity: capacity,
-		cache:    map[int]*LinkNode{},
-		head:     initLinkNode(0, 0),
-		tail:     initLinkNode(0, 0),
-	}
-	l.head.next = l.tail
-	l.tail.pre = l.head
-	return l
-}
-
-func (this *LRUCache) Get(key int) int {
-	if _, ok := this.cache[key]; ok {
-		node := this.cache[key]
-		this.moveToHead(node)
-		return node.value
-	}
-	return -1
-}
-
-func (this *LRUCache) Put(key int, value int) {
-	if _, ok := this.cache[key]; !ok {
-		node := initLinkNode(key, value)
-		this.cache[key] = node
-		this.addToHead(node)
-		this.size++
-		if this.size > this.capacity {
-			removeNode := this.delTailNode()
-			delete(this.cache, removeNode.key)
-			this.size--
-		}
-	} else {
-		node := this.cache[key]
-		node.value = value
-		this.moveToHead(node)
-	}
-}
-
-func (this *LRUCache) addToHead(node *LinkNode) {
-	node.pre = this.head
-	node.next = this.head.next
-	this.head.next.pre = node
-	this.head.next = node
-}
-
-func (this *LRUCache) moveToHead(node *LinkNode) {
-	this.delNode(node)
-	this.addToHead(node)
-}
-
-// 删除节点
-func (this *LRUCache) delNode(node *LinkNode) {
-	node.next.pre = node.pre
-	node.pre.next = node.next
-}
-
-// 删除尾节点
-func (this *LRUCache) delTailNode() *LinkNode {
-	node := this.tail.pre
-	this.delNode(node)
-	return node
-}
+//
+//type LRUCache struct {
+//	size       int
+//	capacity   int
+//	cache      map[int]*LinkNode
+//	head, tail *LinkNode
+//}
+//
+//type LinkNode struct {
+//	key, value int
+//	pre, next  *LinkNode
+//}
+//
+//func initLinkNode(key, value int) *LinkNode {
+//	return &LinkNode{
+//		key:   key,
+//		value: value,
+//	}
+//}
+//
+//func Constructor(capacity int) LRUCache {
+//	l := LRUCache{
+//		capacity: capacity,
+//		cache:    map[int]*LinkNode{},
+//		head:     initLinkNode(0, 0),
+//		tail:     initLinkNode(0, 0),
+//	}
+//	l.head.next = l.tail
+//	l.tail.pre = l.head
+//	return l
+//}
+//
+//func (this *LRUCache) Get(key int) int {
+//	if _, ok := this.cache[key]; ok {
+//		node := this.cache[key]
+//		this.moveToHead(node)
+//		return node.value
+//	}
+//	return -1
+//}
+//
+//func (this *LRUCache) Put(key int, value int) {
+//	if _, ok := this.cache[key]; !ok {
+//		node := initLinkNode(key, value)
+//		this.cache[key] = node
+//		this.addToHead(node)
+//		this.size++
+//		if this.size > this.capacity {
+//			removeNode := this.delTailNode()
+//			delete(this.cache, removeNode.key)
+//			this.size--
+//		}
+//	} else {
+//		node := this.cache[key]
+//		node.value = value
+//		this.moveToHead(node)
+//	}
+//}
+//
+//func (this *LRUCache) addToHead(node *LinkNode) {
+//	node.pre = this.head
+//	node.next = this.head.next
+//	this.head.next.pre = node
+//	this.head.next = node
+//}
+//
+//func (this *LRUCache) moveToHead(node *LinkNode) {
+//	this.delNode(node)
+//	this.addToHead(node)
+//}
+//
+//// 删除节点
+//func (this *LRUCache) delNode(node *LinkNode) {
+//	node.next.pre = node.pre
+//	node.pre.next = node.next
+//}
+//
+//// 删除尾节点
+//func (this *LRUCache) delTailNode() *LinkNode {
+//	node := this.tail.pre
+//	this.delNode(node)
+//	return node
+//}
 
 func TestLoog(t *testing.T) {
 	a := make(chan bool)
