@@ -1,0 +1,11 @@
+.git
+.gitignore
+.idea
+.vscode
+*.md
+*.log
+logs/
+vendor/
+test/
+*.csv
+.DS_Store 

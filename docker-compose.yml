@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go_app
+    ports:
+      - "8011:8011"
+    restart: unless-stopped
+    environment:
+      - GIN_MODE=release
+    volumes:
+      - ./logs:/app/logs 

@@ -1,23 +1,31 @@
-# Compile stage
-FROM golang:1.18 AS build-env
+# 使用官方 Golang 镜像作为构建环境
+FROM golang:1.23-alpine AS builder
 
-# Build Delve
-RUN go get github.com/go-delve/delve/cmd/dlv
+# 设置工作目录
+WORKDIR /app
 
-ADD . /dockerdev
-WORKDIR /dockerdev
+# 复制 go.mod 和 go.sum
+COPY go.mod go.sum ./
 
-# 编译需要 debug 的程序
-RUN go build -gcflags="all=-N -l" -o /server
+# 下载依赖
+RUN go mod download
 
-# Final stage
-FROM debian:buster
+# 复制源代码
+COPY . .
 
-# 分别暴露 server 和 dlv 端口
-EXPOSE 8000 40000
+# 构建应用
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
-WORKDIR /
-COPY --from=build-env /go/bin/dlv /
-COPY --from=build-env /server /
+# 使用轻量级的 alpine 作为运行环境
+FROM alpine:latest
 
-CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/server"]
+WORKDIR /app
+
+# 从构建阶段复制二进制文件
+COPY --from=builder /app/main .
+
+# 暴露端口
+EXPOSE 8011
+
+# 运行应用
+CMD ["./main"]
